@@ -110,13 +110,17 @@ typedef struct ifct_ele {
 
 void* ifctele_genElement(int index, int age, unsigned int detected_time, int history_place[N_HISTORY])
 {
+	int i;
 	ifct_ele_t* ptr;
 	
-	ptr = (int*)malloc(sizeof(ifct_ele_t));
+	ptr = (void*)malloc(sizeof(ifct_ele_t));
 	ptr->pIndex = index;
 	ptr->age = age;
 	ptr->time = detected_time;
-	ptr->placeHist[N_HISTORY] = history_place[N_HISTORY]; //(ifct_ele_t.placeHist, ) ??
+	for (i=0;i<N_HISTORY;i++)
+	{
+		ptr->placeHist[i] = history_place[i]; //(ifct_ele_t.placeHist, ) ??
+	}
 
 	//여기에서 free하면 안됨. 
 	return ptr;
@@ -142,25 +146,31 @@ int ifctele_getHistPlaceIndex(void* obj, int pIndex) //place는 몇번쨰 장소인지도
 
 unsigned int ifctele_getinfestedTime(void* obj)
 {
+	ifct_ele_t* ptr = (ifct_ele_t*)obj;
 	
+	return ptr->time;
 }
-
+ 
 
 
 void ifctele_printElement(void* obj)
 {
 	int i;
+	
 	ifct_ele_t* ptr = (ifct_ele_t*)obj;
 	
 	printf("Patient Index : %i\n", ptr->pIndex);
-	printf("Age : %i\n", ptr->age);
+	printf("Patient Age : %i\n", ptr->age);
 	printf("Detected Time : %i\n", ptr->time);
-//	printf("Place : %s\n", ptr->placeHist); //장소어케함?
-	for(i=0;i<5;i++)
+	printf("Path History : ");
+	for(i=0;i<N_HISTORY;i++)
 	{
-		ifct_ele_t.ptr[i]->placeHist[i];
+		printf("%s ", ifctele_getPlaceName(ptr->placeHist[i]));
 	}
-	//...
+
+	printf("\n");
+	
+//	printf("Path History : : %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)", );
 }
 
 

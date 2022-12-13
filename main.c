@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
     while ( 3 == fscanf(fp, "%d %d %d", &pIndex, &age, &time))
     {
     	int i;
-    	for (i=0;i<5;i++)
+    	for (i=0;i<N_HISTORY;i++)
     	{
     		fscanf(fp, "%d", &placeHist[i]);
 //    		printf("%5d", placeHist[i]);
@@ -58,13 +58,15 @@ int main(int argc, const char * argv[]) {
     	
     	ifct_element = ifctele_genElement(pIndex, age, time, placeHist);
     	ifctdb_addTail(ifct_element);
-    	
-		ifctele_printElement(ifct_element); //프린트해보기.    	
-//		ifctele_getAge(ifct_element); //프린트해보기. 
+
+//		ifctele_printElement(ifct_element); //프린트해보기.  
+		
+//		ifctele_getAge(ifct_element); //
     	
 //    	printf("\n"); //
 	}
 	
+
 /*
    {
     	int place1, place2; //첫번쨰, 두번쨰 장소 
@@ -75,7 +77,8 @@ int main(int argc, const char * argv[]) {
 		printf("The first place is %s\n", ifctele_getPlaceName(place1));
 		printf("The second place is %s\n", ifctele_getPlaceName(place2));
 	}
-
+*/
+/*
 	{
 		int i, j;
 		for (i=0;i<5;i++)
@@ -113,12 +116,17 @@ int main(int argc, const char * argv[]) {
                 break;
                 
             case MENU_PATIENT:
-                ifct_element = ifctele_genElement(pIndex, age, time, placeHist);
+            	printf("Patient index : ");
+            	scanf("%i", &pIndex);
+                ifct_element = ifctdb_getData(pIndex);
+				printf("--------------------------------------------\n");
                 ifctele_printElement(ifct_element);
+                printf("--------------------------------------------\n");
                 break;
                 
             case MENU_PLACE:
-                
+                printf("Place Name : ");
+
                 break;
                 
             case MENU_AGE:
