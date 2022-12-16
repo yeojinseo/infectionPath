@@ -27,6 +27,11 @@ int main(int argc, const char * argv[]) {
     FILE* fp;
     int pIndex, age, time;
     int placeHist[N_HISTORY];
+    char placename[10];
+    int placenum;
+	int minage, maxage;
+    int i, cnt;
+    
 
     
     //------------- 1. loading patient info file ------------------------------
@@ -58,12 +63,10 @@ int main(int argc, const char * argv[]) {
     	
     	ifct_element = ifctele_genElement(pIndex, age, time, placeHist);
     	ifctdb_addTail(ifct_element);
-
-//		ifctele_printElement(ifct_element); //프린트해보기.  
 		
-//		ifctele_getAge(ifct_element); //
+		ifctele_getAge(ifct_element); //
     	
-//    	printf("\n"); //
+//    	printf("\n");
 	}
 	
 
@@ -111,29 +114,50 @@ int main(int argc, const char * argv[]) {
         
         switch(menu_selection)
         {
-            case MENU_EXIT:
+            case MENU_EXIT: 
                 printf("Exiting the program... Bye bye.\n");
                 break;
                 
-            case MENU_PATIENT:
+            case MENU_PATIENT: 
             	printf("Patient index : ");
             	scanf("%i", &pIndex);
+            	printf("--------------------------------------------\n");
                 ifct_element = ifctdb_getData(pIndex);
-				printf("--------------------------------------------\n");
                 ifctele_printElement(ifct_element);
                 printf("--------------------------------------------\n");
                 break;
                 
-            case MENU_PLACE:
+            case MENU_PLACE: //2
                 printf("Place Name : ");
-
+                scanf("%s", &placename);
+                printf("--------------------------------------------\n");
+                for (i=0;i<ifctdb_len();i++)
+                {
+                	ifct_element = ifctdb_getData(i);
+                	placenum = ifctele_getHistPlaceIndex(ifct_element, i);
+                	if (strcmp(placename, ifctele_getPlaceName(placenum)) == 0)
+                	{
+                		ifctele_printElement(ifct_element);
+                		cnt++;
+					}
+				}
+                printf("--------------------------------------------\n\n");
+                printf("There are %i patients detected in %s.\n", cnt, placename);
                 break;
                 
-            case MENU_AGE:
-                
+            case MENU_AGE: 
+                printf("minimal age : ");
+                scanf("%i", minage);
+                printf("maximal age : ");
+                scanf("%i", maxage);
+            
+                printf("--------------------------------------------\n");
+                ifctele_printElement(ifct_element);
+                printf("--------------------------------------------\n\n");
+                printf("There are %i patients whose age is between %i and %i.\n", minage, minage, maxage);
                 break;
                 
-            case MENU_TRACK:
+            case MENU_TRACK: 
                     
                 break;
                 

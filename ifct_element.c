@@ -139,7 +139,9 @@ int ifctele_getAge(void* obj)
 
 int ifctele_getHistPlaceIndex(void* obj, int pIndex) //place는 몇번쨰 장소인지도 고려. 
 {
+	ifct_ele_t* ptr = (ifct_ele_t*)obj;
 	
+	return ptr->placeHist[N_HISTORY-1];
 }
 
 
