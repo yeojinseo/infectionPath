@@ -141,7 +141,7 @@ int ifctele_getHistPlaceIndex(void* obj, int pIndex) //place는 몇번쨰 장소인지도
 {
 	ifct_ele_t* ptr = (ifct_ele_t*)obj;
 	
-	return ptr->placeHist[N_HISTORY-1];
+	return ptr->placeHist[pIndex];
 }
 
 
@@ -152,7 +152,7 @@ unsigned int ifctele_getinfestedTime(void* obj)
 	
 	return ptr->time;
 }
- 
+
 
 
 void ifctele_printElement(void* obj)
@@ -167,12 +167,12 @@ void ifctele_printElement(void* obj)
 	printf("Path History : ");
 	for(i=0;i<N_HISTORY;i++)
 	{
-		printf("%s ", ifctele_getPlaceName(ptr->placeHist[i]));
+		printf("%s  ", ifctele_getPlaceName(ptr->placeHist[i]));
 	}
+//	printf("Path History : : %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)", );
 
 	printf("\n");
 	
-//	printf("Path History : : %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)", );
 }
 
 
@@ -183,3 +183,34 @@ char* ifctele_getPlaceName(int placeIndex)
 	return countryName[placeIndex];
 }
 
+
+
+int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자 
+{
+	int i, timeMet, time, place, testplace;
+	
+	for (i=2;i<N_HISTORY;i++)
+	{	
+
+		testplace = convertTimeToIndex(place);
+		if (i == testplace)
+		{
+			timeMet = i;
+		}
+	}
+	
+	return timeMet;
+}
+
+
+
+int convertTimeToIndex(int time, int infestedTime)
+{
+	int index = -1;
+	if (time <= infestedTime && time > infestedTime-N_HISTORY)
+	{
+		index = N_HISTORY-(infestedTime - time)-1;
+	}
+	
+	return index;
+}
