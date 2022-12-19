@@ -185,17 +185,35 @@ char* ifctele_getPlaceName(int placeIndex)
 
 
 
-int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자 
+int isMet(int pIndex, int pTest, int detected_time, int *place) //현재환자, i번쨰 환자 
 {
-	int i, timeMet, time, place, testplace;
+	int i;
+	int j, k, time, placeindex, testplace;
+	int timeMet = -1;
+	int *placearray[N_HISTORY];
+	int placeArray[N_HISTORY];
+	void *ifct_element; //
+	
+	for (j=0;j<N_HISTORY;j++)
+	{		
+		k = place + j;
+		placearray[j] = k;
+		placeArray[j] = *placearray[j];
+	}
+	
+	ifct_element = ifctdb_getData(pIndex);	
 	
 	for (i=2;i<N_HISTORY;i++)
 	{	
-
-		testplace = convertTimeToIndex(place);
-		if (i == testplace)
+		//pIndex의 placeHist[i]의 시간 //현재환자의 i번째 이동장소 시점 계산 
+		time = detected_time - (N_HISTORY - i - 1); //ok
+	
+		//pTest의 time에서 장소    //계산된 시점에서의 대상환자 이동장소 계산
+		placeindex = convertTimeToIndex(time, detected_time);
+		testplace = ifctele_getHistPlaceIndex(ifct_element, i);
+		if (placeArray[i] == testplace)
 		{
-			timeMet = i;
+			timeMet = time;
 		}
 	}
 	
