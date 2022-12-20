@@ -22,23 +22,23 @@
 int trackInfester(int patient_no, int *detected_time, int *place)
 {
 	int i, j, timeMet;
-	int who = -1;
+	int infester = -1;
 	int timearray[ifctdb_len()];
 	
 	for (i=0;i<ifctdb_len();i++)
 	{
 		timeMet = isMet(patient_no, i);
-		timearray[i] = timeMet;
 		if (timeMet > 0) //만났다면 
 		{
-			for (j=0;j<ifctdb_len();j++) //지금까지 환자 중 만난시간이 가장 이른가?
+			timearray[i] = timeMet;
+			for (j=0;j<ifctdb_len();j++) //지금까지 환자 중 만난시간이 가장 이른가?)
 			{
 				if (timeMet <= timearray[j])
-					who = i;
+					infester = i;
 			}
 		}
 	}
-	return who;
+	return infester;
 }
 
 
@@ -50,14 +50,13 @@ int main(int argc, const char * argv[]) {
     int pIndex, age, time;
     int placeHist[N_HISTORY];
     int i;
+    
     char placeInput[20];
     int placenum;
     int minAge, maxAge, pAge;
     
     int infester = -1;
 	int pFirst, index;
-    int *detected_time;
-	int *place;
     
     //------------- 1. loading patient info file ------------------------------
     //1-1. FILE pointer open
@@ -167,35 +166,35 @@ int main(int argc, const char * argv[]) {
                 
 				ifct_element = ifctdb_getData(index);
 				
-				int j, getplace;
+				int j;
 				int placeArray[N_HISTORY];
+				
+				int detected_time;
+				detected_time = ifctele_getinfestedTime(ifct_element);
+				
+				int *ptrtime = &detected_time;
+				int *ptrplace = &placeArray[N_HISTORY];
 				
 				for (j=0;j<N_HISTORY;j++)
 				{
-					getplace = ifctele_getHistPlaceIndex(ifct_element, j);
-					placeArray[j] = getplace;
+					placeArray[j] = ifctele_getHistPlaceIndex(ifct_element, j);
 				}
 
-				int detected_time, place;
-				int* ptrtime = &detected_time;
-				int* ptrplace = &place;
-				
-				detected_time = ifctele_getinfestedTime(ifct_element);
-				place = placeArray[N_HISTORY];
-				
-                while (index >= 0 && index < ifctdb_len()) //현재한자가 누군가 있음  
+                while (index != -1) //현재한자가 누군가 있음  index >= 0 && index < ifctdb_len()
                 {
                 	infester = trackInfester(index, ptrtime, ptrplace);
                 	if (infester != -1)
+					{
                 		printf(" --> [TRACKING] patient %i is infected by %i (time : %i, place : %i)\n", index, infester, 1, 1);
-                	else 
+					}
+					else 
                 	{
                 		pFirst = index;
-                		//printf("%i is the first infector!!\n", index); 
-                		break;
+                		//printf("%i is the first infector!!\n", index);
+                		break; 
 					}
                 	index = infester;
-                	index = -1;
+                	break;
 				}
                 printf("The first infester of %d is %d\n", pIndex, pFirst);
                 break; 
