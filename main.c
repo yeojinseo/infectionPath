@@ -55,8 +55,7 @@ int main(int argc, const char * argv[]) {
     int minAge, maxAge, pAge;
     
     int infester = -1;
-	int pFirst;
-    int index = -1;
+	int pFirst, index;
     int *detected_time;
 	int *place;
     
@@ -164,6 +163,8 @@ int main(int argc, const char * argv[]) {
                 printf("Patient index : ");
                 scanf("%i", &index);
                 
+                pIndex = index;
+                
 				ifct_element = ifctdb_getData(index);
 				
 				int j, getplace;
@@ -179,28 +180,24 @@ int main(int argc, const char * argv[]) {
 				int* ptrtime = &detected_time;
 				int* ptrplace = &place;
 				
-				int d, p;
 				detected_time = ifctele_getinfestedTime(ifct_element);
 				place = placeArray[N_HISTORY];
-
 				
-                while (index >= 0 && index < ifctdb_len()) //index >= 0 && index < ifctdb_len()
+                while (index >= 0 && index < ifctdb_len()) //현재한자가 누군가 있음  
                 {
                 	infester = trackInfester(index, ptrtime, ptrplace);
                 	if (infester != -1)
-                	{
                 		printf(" --> [TRACKING] patient %i is infected by %i (time : %i, place : %i)\n", index, infester, 1, 1);
-					}
                 	else 
                 	{
                 		pFirst = index;
-                		index = infester;
-                		//printf("%i is the first infector!!\n", pIndex);
+                		//printf("%i is the first infector!!\n", index); 
+                		break;
 					}
-					index = infester;
-					break;
+                	index = infester;
+                	index = -1;
 				}
-                printf("The first infester of %d is %d\n", index, infester);
+                printf("The first infester of %d is %d\n", pIndex, pFirst);
                 break; 
                 
             default:

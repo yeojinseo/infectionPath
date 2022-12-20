@@ -167,7 +167,7 @@ void ifctele_printElement(void* obj)
 	printf("Path History : ");
 	for(i=0;i<N_HISTORY;i++)
 	{
-		printf("%s  ", ifctele_getPlaceName(ptr->placeHist[i]));
+		printf("%s(%i)  ", ifctele_getPlaceName(ptr->placeHist[i]), (ptr->time)-(N_HISTORY-i-1));
 	}
 //	printf("Path History : : %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)", );
 
@@ -188,39 +188,44 @@ char* ifctele_getPlaceName(int placeIndex)
 int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자 
 {
 	int i, j;
-	int place, time, placeindex, testplace;
-	int detected_time;
+	int pIndex_place;
+	int time, pTest_place, placeindex;
+	int detected_time, pTest_detected_time;
 	int timeMet = -1;
 	int placeArray[N_HISTORY];
 	
 	void *pIndex_element; //
 	void *pTest_element;
-	
+
 	pIndex_element = ifctdb_getData(pIndex);
 	pTest_element = ifctdb_getData(pTest);
 	
 	detected_time = ifctele_getinfestedTime(pIndex_element);
+	pTest_detected_time = ifctele_getinfestedTime(pTest_element);
 	
-	for (j=0;j<N_HISTORY;j++)
+	for (j=0;j<N_HISTORY;j++) //현재환자의 장소 배열 만들기  
 	{
-		place = ifctele_getHistPlaceIndex(pIndex_element, j);
-		placeArray[j] = place;
+		pIndex_place = ifctele_getHistPlaceIndex(pIndex_element, j);
+		placeArray[j] = pIndex_place;
 	}
 	
-	for (i=2;i<N_HISTORY;i++)
+	for (i=0;i<N_HISTORY-2;i++)
 	{	
-		//pIndex의 placeHist[i]의 시간  //현재환자의 i번째 이동장소 시점 계산 
+		//pIndex의 placeHist[i]의 시간(날짜)  //현재환자의 i번째 이동장소 시점 계산 
 		time = detected_time - (N_HISTORY - i - 1); //현재환자의 i번째 이동장소의 날짜 알아내기 
 		
-		//pTest의 time에서 장소    //계산된 시점에서의 대상환자 이동장소 계산
-		placeindex = convertTimeToIndex(time, detected_time);
+		//pTest의 time에서 위치    //계산된 시점에서의 대상환자 이동장소 계산
+		placeindex = convertTimeToIndex(time, pTest_detected_time); 
 		if (placeindex >= N_HISTORY)
 		{
 			return -1;
 		}
-		
-		testplace = ifctele_getHistPlaceIndex(pIndex_element, placeindex);
-		if (placeArray[i] == testplace)
+		else
+		{
+			pTest_place = ifctele_getHistPlaceIndex(pTest_element, placeindex);
+		}
+		//testplace = ifctele_getHistPlaceIndex(pIndex_element, placeindex);
+		if (placeArray[i] == pTest_place)
 		{
 			timeMet = time;
 		}
