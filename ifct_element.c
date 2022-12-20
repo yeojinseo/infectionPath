@@ -185,32 +185,41 @@ char* ifctele_getPlaceName(int placeIndex)
 
 
 
-int isMet(int pIndex, int pTest, int detected_time, int *place) //현재환자, i번쨰 환자 
+int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자 
 {
-	int i;
-	int j, k, time, placeindex, testplace;
+	int i, j;
+	int place, time, placeindex, testplace;
+	int detected_time;
 	int timeMet = -1;
-	int *placearray[N_HISTORY];
 	int placeArray[N_HISTORY];
-	void *ifct_element; //
+	
+	void *pIndex_element; //
+	void *pTest_element;
+	
+	pIndex_element = ifctdb_getData(pIndex);
+	pTest_element = ifctdb_getData(pTest);
+	
+	detected_time = ifctele_getinfestedTime(pIndex_element);
 	
 	for (j=0;j<N_HISTORY;j++)
-	{		
-		k = place + j;
-		placearray[j] = k;
-		placeArray[j] = *placearray[j];
+	{
+		place = ifctele_getHistPlaceIndex(pIndex_element, j);
+		placeArray[j] = place;
 	}
-	
-	ifct_element = ifctdb_getData(pIndex);	
 	
 	for (i=2;i<N_HISTORY;i++)
 	{	
-		//pIndex의 placeHist[i]의 시간 //현재환자의 i번째 이동장소 시점 계산 
-		time = detected_time - (N_HISTORY - i - 1); //ok
-	
+		//pIndex의 placeHist[i]의 시간  //현재환자의 i번째 이동장소 시점 계산 
+		time = detected_time - (N_HISTORY - i - 1); //현재환자의 i번째 이동장소의 날짜 알아내기 
+		
 		//pTest의 time에서 장소    //계산된 시점에서의 대상환자 이동장소 계산
 		placeindex = convertTimeToIndex(time, detected_time);
-		testplace = ifctele_getHistPlaceIndex(ifct_element, i);
+		if (placeindex >= N_HISTORY)
+		{
+			return -1;
+		}
+		
+		testplace = ifctele_getHistPlaceIndex(pIndex_element, placeindex);
 		if (placeArray[i] == testplace)
 		{
 			timeMet = time;
@@ -220,7 +229,7 @@ int isMet(int pIndex, int pTest, int detected_time, int *place) //현재환자, i번�
 	return timeMet;
 }
 
-
+ 
 
 int convertTimeToIndex(int time, int infestedTime)
 {
