@@ -119,10 +119,9 @@ void* ifctele_genElement(int index, int age, unsigned int detected_time, int his
 	ptr->time = detected_time;
 	for (i=0;i<N_HISTORY;i++)
 	{
-		ptr->placeHist[i] = history_place[i]; //(ifct_ele_t.placeHist, ) ??
+		ptr->placeHist[i] = history_place[i];
 	}
 
-	//여기에서 free하면 안됨. 
 	return ptr;
 }
 
@@ -167,12 +166,10 @@ void ifctele_printElement(void* obj)
 	printf("Path History : ");
 	for(i=0;i<N_HISTORY;i++)
 	{
-		printf("%s(%i)  ", ifctele_getPlaceName(ptr->placeHist[i]), (ptr->time)-(N_HISTORY-i-1));
+		printf("%s(%i) ", ifctele_getPlaceName(ptr->placeHist[i]), (ptr->time)-(N_HISTORY-i-1));
 	}
 //	printf("Path History : : %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)-> %c(%i)", );
-
 	printf("\n");
-	
 }
 
 
@@ -180,30 +177,32 @@ void ifctele_printElement(void* obj)
 //return country name pointer from country number
 char* ifctele_getPlaceName(int placeIndex)
 {
+	
 	return countryName[placeIndex];
 }
 
 
 
-int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자 
+int isMet(int pIndex, int pTest) //(현재환자, i번쨰환자)
 {
 	int i, j;
-	int pIndex_place;
-	int time, pTest_place, placeindex;
+	int pIndex_place, pTest_place;
+	int time, placeindex;
 	int detected_time, pTest_detected_time;
 	int timeMet = -1;
 	int placeArray[N_HISTORY];
-	
-	void *pIndex_element; //
+	void *pIndex_element;
 	void *pTest_element;
 
+	//현재환자와 i번째환자 정보 구조체 불러오기 
 	pIndex_element = ifctdb_getData(pIndex);
 	pTest_element = ifctdb_getData(pTest);
 	
+	//현재환자와 i번째환자의 발병확인 시점 
 	detected_time = ifctele_getinfestedTime(pIndex_element);
 	pTest_detected_time = ifctele_getinfestedTime(pTest_element);
 	
-	for (j=0;j<N_HISTORY;j++) //현재환자의 장소 배열 만들기  
+	for (j=0;j<N_HISTORY;j++) //현재환자의 장소 배열 만들기 
 	{
 		pIndex_place = ifctele_getHistPlaceIndex(pIndex_element, j);
 		placeArray[j] = pIndex_place;
@@ -211,32 +210,23 @@ int isMet(int pIndex, int pTest) //현재환자, i번쨰 환자
 	
 	for (i=0;i<N_HISTORY-2;i++)
 	{	
-		//pIndex의 placeHist[i]의 시간(날짜)  //현재환자의 i번째 이동장소 시점 계산 
+		//pIndex의 placeHist[i]에 있을 때 시간(날짜)  //현재환자의 i번째 이동장소 시점 계산 
 		time = detected_time - (N_HISTORY - i - 1); //현재환자의 i번째 이동장소의 날짜 알아내기 
 		
-		//pTest의 time에서 위치    //계산된 시점에서의 대상환자 이동장소 계산
+		//pTest의 time에서 위치    //계산된 시점에서의 대상환자 이동장소 계산 
 		placeindex = convertTimeToIndex(time, pTest_detected_time); 
-		if (placeindex >= N_HISTORY)
+		pTest_place = ifctele_getHistPlaceIndex(pTest_element, placeindex);
+		if (placeArray[i] == pTest_place) //현재환자의 위치와  대상환자의 위치가 같다면  
 		{
-			return -1;
-		}
-		else
-		{
-			pTest_place = ifctele_getHistPlaceIndex(pTest_element, placeindex);
-		}
-		//testplace = ifctele_getHistPlaceIndex(pIndex_element, placeindex);
-		if (placeArray[i] == pTest_place)
-		{
-			timeMet = time;
+			timeMet = time; //만난시간 = i번째 이동장소 시점  
 		}
 	}
-	
 	return timeMet;
 }
 
  
 
-int convertTimeToIndex(int time, int infestedTime)
+int convertTimeToIndex(int time, int infestedTime) //(index를 알고싶은 시점, 감염시점) 
 {
 	int index = -1;
 	if (time <= infestedTime && time > infestedTime-N_HISTORY)

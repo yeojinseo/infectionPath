@@ -31,10 +31,12 @@ int trackInfester(int patient_no, int *detected_time, int *place)
 		if (timeMet > 0) //만났다면 
 		{
 			timearray[i] = timeMet;
-			for (j=0;j<ifctdb_len();j++) //지금까지 환자 중 만난시간이 가장 이른가?)
+			for (j=0;j<ifctdb_len();j++) 
 			{
-				if (timeMet <= timearray[j])
-					infester = i;
+				if (timeMet <= timearray[j]) //지금까지 환자 중 만난시간이 가장 이른가?)
+				{
+					infester = i; //전파자 = i 
+				}
 			}
 		}
 	}
@@ -56,7 +58,8 @@ int main(int argc, const char * argv[]) {
     int minAge, maxAge, pAge;
     
     int infester = -1;
-	int pFirst, index;
+	int pFirst = 0;
+	int index;
     
     //------------- 1. loading patient info file ------------------------------
     //1-1. FILE pointer open
@@ -110,9 +113,9 @@ int main(int argc, const char * argv[]) {
             case MENU_PATIENT: 
             	printf("Patient index : ");
             	scanf("%i", &pIndex);
-                ifct_element = ifctdb_getData(pIndex);
+                ifct_element = ifctdb_getData(pIndex); //입력받은 환자의 정보 구조체 가져오기 
                 printf("--------------------------------------------\n");
-                ifctele_printElement(ifct_element);
+                ifctele_printElement(ifct_element);						//환자정보 출력 
                 printf("--------------------------------------------\n");
                 break;
                 
@@ -123,8 +126,8 @@ int main(int argc, const char * argv[]) {
 				int cnt = 0;
                 for (i=0;i<ifctdb_len();i++) //환자수만큼 반복 
                 {
-                	ifct_element = ifctdb_getData(i); //i환자의 정보 가져오기 
-                	placenum = ifctele_getHistPlaceIndex(ifct_element, N_HISTORY-1); //i환자의 발병확인장소
+                	ifct_element = ifctdb_getData(i); //i환자의 정보 구조체 가져오기 
+                	placenum = ifctele_getHistPlaceIndex(ifct_element, N_HISTORY-1); //i환자의 발병확인장소 정보 가져오기 
                 	if (strcmp(placeInput, ifctele_getPlaceName(placenum)) == 0) //입력받은 장소에서 발병된 환자라면 (입력받은장소 = i환자의 발병확인장소) 
                 	{
                 		printf("--------------------------------------------\n");
@@ -138,19 +141,19 @@ int main(int argc, const char * argv[]) {
                 
             case MENU_AGE: 
                 printf("minimal age : ");
-                scanf("%d", &minAge);
+                scanf("%d", &minAge); //최소나이  
                 printf("maximal age : ");
-                scanf("%d", &maxAge);
+                scanf("%d", &maxAge); //최대나이  
             	
             	int cnt2 = 0;
             	for (i=0;i<ifctdb_len();i++) //환자수만큼 반복 
 				{
-					ifct_element = ifctdb_getData(i); //i환자의 정보 가져오기 
-					pAge = ifctele_getAge(ifct_element); //i환자의 나이 
+					ifct_element = ifctdb_getData(i); //i환자의 정보 구조체 가져오기 
+					pAge = ifctele_getAge(ifct_element); //i환자의 나이 정보 가져오기 
 					if (pAge >= minAge && pAge <= maxAge)
 					{
 						printf("--------------------------------------------\n");
-						ifctele_printElement(ifct_element);
+						ifctele_printElement(ifct_element);						//최소나이~최대나이 사이에 있는 환자 정보 출력  
                 		printf("--------------------------------------------\n");
                 		cnt2++;
 					}
@@ -163,40 +166,41 @@ int main(int argc, const char * argv[]) {
                 scanf("%i", &index);
                 
                 pIndex = index;
-                
-				ifct_element = ifctdb_getData(index);
+				ifct_element = ifctdb_getData(index); //입력환자의 정보 구조체 가져오기 
 				
 				int j;
 				int placeArray[N_HISTORY];
+				for (j=0;j<N_HISTORY;j++)
+				{
+					placeArray[j] = ifctele_getHistPlaceIndex(ifct_element, j);
+				}   //입력환자의 이동장소. 배열로 만들기 
 				
-				int detected_time;
+				int detected_time; //입력환자의 감염 확인 시점  
 				detected_time = ifctele_getinfestedTime(ifct_element);
 				
 				int *ptrtime = &detected_time;
 				int *ptrplace = &placeArray[N_HISTORY];
-				
-				for (j=0;j<N_HISTORY;j++)
-				{
-					placeArray[j] = ifctele_getHistPlaceIndex(ifct_element, j);
-				}
-
-                while (index != -1) //현재한자가 누군가 있음  index >= 0 && index < ifctdb_len()
+		
+                while (index != -1) //현재환자가 누군가 있음  //index >= 0 && index < ifctdb_len()
                 {
                 	infester = trackInfester(index, ptrtime, ptrplace);
-                	if (infester != -1)
+                	if (infester != -1) //전파자가 있으면  
 					{
                 		printf(" --> [TRACKING] patient %i is infected by %i (time : %i, place : %i)\n", index, infester, 1, 1);
+                		if (index == infester) //현재환자가 전파자라면 
+                		{
+                			printf("The first infester of %d is %d\n", pIndex, pFirst);
+                			break;
+						}
 					}
 					else 
                 	{
-                		pFirst = index;
-                		//printf("%i is the first infector!!\n", index);
-                		break; 
+                		pFirst = index; //최초전파자 = 현재환자 
+                		printf("%i is the first infector!!\n", pFirst);
+						break; 
 					}
-                	index = infester;
-                	break;
+                	index = infester; //현재환자 = 전파자  
 				}
-                printf("The first infester of %d is %d\n", pIndex, pFirst);
                 break; 
                 
             default:
